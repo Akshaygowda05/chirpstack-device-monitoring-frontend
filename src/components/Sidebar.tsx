@@ -22,11 +22,25 @@ function Sidebar() {
       zIndex: 100,
     }}>
 
+      {user.siteName ? (
+        <div style={{
+          padding: "15px 20px",
+          fontSize: "12px",
+          fontWeight: 600,
+          color: "#2c3e50",
+        }}>
+          {user.siteName}
+        </div>
+      ) : null}
+
       {/* USER NAV */}
       {user.role === "USER" && (
         <nav style={{ display: "flex", flexDirection: "column", padding: "10px 0" }}>
           <NavItem to="/dashboard" label="DASHBOARD" pathname={pathname} />
           <NavItem to="/devices" label="DEVICES" pathname={pathname} />
+          <NavItem to="/multicast-groups" label="MULTICAST GROUPS" pathname={pathname} />
+          <NavItem to="/Robotsbatteies" label="BATTERY" pathname={pathname} />
+          <NavItem to="/logs" label="LOGS" pathname={pathname} />
         </nav>
       )}
 

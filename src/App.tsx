@@ -8,11 +8,16 @@ import MainLayout from "./components/MainLayout";
 import Users from "./pages/Users";
 import CreateUser from "./pages/CreateUser";
 import Devices from "./pages/Devices";
+import MulticastGroup from "./pages/MulticastGorup";
+import BatteryPages from "./pages/BatteryPages";
+import Logs from "./pages/Logs";
+import { useSocketInit } from "./hooks/useSocketInit";
 
 
 function App() {
 
   useAuthInit(); //now i dont want to login everyrime
+  useSocketInit();
   return (
    <BrowserRouter>
    <Routes>
@@ -20,6 +25,7 @@ function App() {
     <Route path="/" element={<Login />} />
 
     {/* protected routes */}
+
     <Route
     path="/dashboard"
     element={
@@ -29,6 +35,42 @@ function App() {
         </MainLayout>
       </ProtectedRoute>
     }/>
+
+    <Route
+    path="/multicast-groups"
+    element={
+      <ProtectedRoute allowedRoles={["USER"]}>
+        <MainLayout>
+        <MulticastGroup />
+        </MainLayout>
+      </ProtectedRoute>
+    }/>
+
+     <Route
+    path="/logs"
+    element={
+      <ProtectedRoute allowedRoles={["USER"]}>
+        <MainLayout>
+        <Logs />
+        </MainLayout>
+      </ProtectedRoute>
+    }/>
+
+
+
+     <Route
+    path="/Robotsbatteies"
+    element={
+      <ProtectedRoute allowedRoles={["USER"]}>
+        <MainLayout>
+        <BatteryPages />
+        </MainLayout>
+      </ProtectedRoute>
+    }/>
+
+
+
+
 
        <Route
     path="/devices"
@@ -72,9 +114,6 @@ element = {
   </ProtectedRoute>
 }
 />
-
-
-
 
     
     </Routes>

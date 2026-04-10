@@ -7,11 +7,12 @@ function Header() {
   const user = useRecoilValue(authState);
   const resetAuth = useResetRecoilState(authState);
 
-  const logout = () => {
-    localStorage.removeItem("token");
-    resetAuth();
-    window.location.href = "/";
-  };
+const logout = () => {
+  localStorage.removeItem("auth");
+  resetAuth();
+  window.location.href = "/";
+  
+};
 
   return (
     <div style={{

@@ -3,6 +3,7 @@ import { authState } from "../store/authState";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../services/api";
+import { login } from "../services/User.service";
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -25,20 +26,15 @@ function Login() {
     console.log('Attempting login with:', { email: cleanEmail, password: cleanPassword });
 
     try {
-      const res = await api.post(
-        '/v1/user/login',
-        { email: cleanEmail, password: cleanPassword },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-
+      const res = await login(cleanEmail, cleanPassword);
       console.log('Login response:', res.data);
 
-      const { token, name, role } = res.data;
+      const { token, name, role,siteName } = res.data;
 
  
       setAuth({ name, role, token, initialized: true });
 
-      localStorage.setItem('token', token);
+      localStorage.setItem('auth', JSON.stringify({ name, role, token,siteName }));
 
       setPassword('');
 
