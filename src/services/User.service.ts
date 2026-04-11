@@ -22,11 +22,12 @@ export const createUser = async (data:CreateUserData)=>{
 
 // this is for the fetch the devices
 
-export const fetchdevices = async (limit: number, offset: number) => {
+export const fetchdevices = async (limit: number, offset: number,search:string) => {
     return await api.get("/devices", {
         params: {
             limit,
-            offset
+            offset,
+            search
         }
     });
 }
@@ -65,7 +66,7 @@ export const multicastDownlink = async (groupIds:string[], data:string) =>{
 
 
 export const unicastDownlink =async(devEui:string,data:string) =>{
-    console.log("i am came here")
+
     return await api.post(`/devices/${devEui}/queue`,{
         data
     })

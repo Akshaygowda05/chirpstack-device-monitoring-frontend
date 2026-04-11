@@ -1,24 +1,33 @@
 import { useEffect, useState } from "react";
 import { fetchdevices, unicastDownlink } from "../services/User.service";
 import { formatDistanceToNow } from "date-fns";
-import { Alert, Button, IconButton } from "@mui/material";
-
-
+import { Alert, Button, IconButton } from "@mui/materiaimport { } from "react-router-dom";{ Navigate, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 
 
 function Devices() {
+  const navigate = useNavigate();
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
   // pagination
   const [limit, setLimit] = useState(5);
   const [offset, setOffset] = useState(0);
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("");
+
+
+
+const handleView = (devEui: string) => {
+  navigate(`/devices/${devEui}`);
+};
+
 
   const fetchDevices = async () => {
     setLoading(true);
     try {
-      const res = await fetchdevices(limit, offset);
+      const res = await fetchdevices(limit, offset,search);
 
       setDevices(res.data.result);
     } catch (err) {
@@ -43,11 +52,17 @@ function Devices() {
     
    
   }
+
+  
  
 
   useEffect(() => {
+  const delay = setTimeout(() => {
     fetchDevices();
-  }, [limit, offset]);
+  }, 500);
+
+  return () => clearTimeout(delay);
+}, [limit, offset, search]);
 
   return (
     <div>
@@ -72,6 +87,16 @@ function Devices() {
         <option value={10}>10</option>
         <option value={20}>20</option>
       </select>
+
+      <input
+  type="text"
+  placeholder="Search by name..."
+  value={search}
+  onChange={(e) => {
+    setSearch(e.target.value);
+    setOffset(0); 
+  }}
+/>
 
       {/* Table */}
       {loading ? (
@@ -107,10 +132,20 @@ function Devices() {
                   onClick={() =>sendDownLink("Ag==",device.devEui)}
                  
                  >Start</Button> 
-                  <Button variant="outlined">Stop</Button>
-                  <Button variant="outlined">Return</Button>
-                  <Button variant="outlined">Reboot</Button>
-                  <Button variant="outlined">View</Button>
+                  <Button 
+                  variant="outlined"
+                  onClick={() =>sendDownLink("Aw==",device.devEui)}
+                  >Stop</Button>
+                  <Button 
+                  variant="outlined"
+                  onClick={() =>sendDownLink("Ae==",device.devEui)}>Return</Button>
+                  <Button 
+                  variant="outlined"
+                  onClick={() =>sendDownLink("Ac==",device.devEui)}
+                  >Reboot</Button>
+                  <Button variant="outlined"
+                  Onclick
+                  >View</Button>
                 </td>
               </tr>
             ))}
