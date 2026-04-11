@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { fetchdevices } from "../services/User.service";
+import { fetchdevices, unicastDownlink } from "../services/User.service";
+import { formatDistanceToNow } from "date-fns";
+import { Alert, Button, IconButton } from "@mui/material";
+
+
+
 
 
 function Devices() {
@@ -22,6 +27,23 @@ function Devices() {
       setLoading(false);
     }
   };
+
+    const sendDownLink = async(data: string,devEui:string) => {
+    console.log("Sending down link:", data);
+    console.log("ths is the device i an trying to send the data",devEui)
+    const result = await unicastDownlink(devEui,data)
+    console.log(result.data.id)
+    const isSuccess = result?.data?.id;
+    {isSuccess ? (
+    alert("sent succsfully")
+) : (
+  alert("not send anything sisya")
+)}
+       
+    
+   
+  }
+ 
 
   useEffect(() => {
     fetchDevices();
@@ -47,7 +69,6 @@ function Devices() {
 
       {/* Limit Selector */}
       <select value={limit} onChange={(e) => setLimit(Number(e.target.value))}>
-        <option value={5}>5</option>
         <option value={10}>10</option>
         <option value={20}>20</option>
       </select>
@@ -60,28 +81,36 @@ function Devices() {
           <thead>
             <tr>
               <th>Name</th>
-              <th>DevEUI</th>
-              <th>Description</th>
-              <th>Profile</th>
+              <th>Location</th>
+              <th>Battery</th>
               <th>Last Seen</th>
-              <th>Signal</th>
-              <th>Power</th>
+              <th>Status</th>
+              <th>Action</th>
             </tr>
           </thead>
 
           <tbody>
             {devices.map((device) => (
               <tr key={device.devEui}>
-                <td>{device.name}</td>
-                <td>{device.devEui}</td>
-                <td>{device.description}</td>
-                <td>{device.deviceProfileName}</td>
-                <td>{new Date(device.lastSeenAt).toLocaleString()}</td>
-                <td>{device.deviceStatus?.margin}</td>
                 <td>
-                  {device.deviceStatus?.externalPowerSource
-                    ? "External"
-                    : "Battery"}
+                    {device.name}
+                    <p>{device.devEui}</p>
+                    </td>
+                <td>{device.description || "unknow"}</td>
+                <td>{device.batteryVoltage}</td>
+                <td>{formatDistanceToNow(new Date(device.lastSeenAt))}</td>
+
+                <td>{device.isActive}</td>
+                <td>
+                 <Button
+                  variant="outlined"
+                  onClick={() =>sendDownLink("Ag==",device.devEui)}
+                 
+                 >Start</Button> 
+                  <Button variant="outlined">Stop</Button>
+                  <Button variant="outlined">Return</Button>
+                  <Button variant="outlined">Reboot</Button>
+                  <Button variant="outlined">View</Button>
                 </td>
               </tr>
             ))}

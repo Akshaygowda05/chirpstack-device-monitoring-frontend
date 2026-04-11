@@ -61,6 +61,17 @@ export const multicastDownlink = async (groupIds:string[], data:string) =>{
     });
 }
 
+// this is for the sending downlink to the ind devices
+
+
+export const unicastDownlink =async(devEui:string,data:string) =>{
+    console.log("i am came here")
+    return await api.post(`/devices/${devEui}/queue`,{
+        data
+    })
+}
+
+
 
 export const fetchBattery = async (groupId:string) =>{
     return await api.get(`/v1/batteries/${groupId}`);

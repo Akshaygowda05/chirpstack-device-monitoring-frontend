@@ -1,92 +1,43 @@
-import { useRecoilState } from "recoil";
-import { authState } from "../store/authState";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { api } from "../services/api";
-import { login } from "../services/User.service";
+import { Box, Container, Typography } from '@mui/material';
+import background from '../assets/Aegeus-Banner-1.jpg';
+import LoginForm from '../components/LoginForm';
 
-function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [, setAuth] = useRecoilState(authState);
-  const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
-
-  const handleLogin = async () => {
-    // Trim input to remove accidental spaces
-    const cleanEmail = email.trim();
-    const cleanPassword = password.trim();
-
-    // Simple validation
-    if (!cleanEmail || !cleanPassword) {
-      setErrorMessage("Email and password are required.");
-      return;
-    }
-
-    console.log('Attempting login with:', { email: cleanEmail, password: cleanPassword });
-
-    try {
-      const res = await login(cleanEmail, cleanPassword);
-      console.log('Login response:', res.data);
-
-      const { token, name, role,siteName } = res.data;
-
- 
-      setAuth({ name, role, token, initialized: true });
-
-      localStorage.setItem('auth', JSON.stringify({ name, role, token,siteName }));
-
-      setPassword('');
-
-      
-     if (role === 'ADMIN') {
-    navigate('/admin');
-} else if (role === 'USER') {
-    navigate('/dashboard'); 
-} else {
-    navigate('/');
-}
-
-    } catch (error: any) {
-      console.error('Login failed', error.response?.data || error.message);
-
-      // Show a friendly error message
-      if (error.response?.status === 401) {
-        setErrorMessage("Invalid email or password.");
-      } else {
-        setErrorMessage("Something went wrong. Please try again.");
-      }
-    }
-  };
-
+const LoginPage = () => {
   return (
-    <div style={{ maxWidth: '400px', margin: '10px auto' }}>
-      <h1>Login Page</h1>
+    <Box
+      sx={{
+        minHeight: '100vh',
+        backgroundImage: `url(${background})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      {/* Top tagline — sits above the card, lets background show around it */}
+      <Box sx={{ textAlign: 'center', px: 1, mb: 4 ,}}>
+        <Typography
+          variant="h4"
+          sx={{ color: '#fff', textShadow: '0 2px 8px rgba(0,0,0,0.5)', fontWeight: 700 }}
+        >
+          Aegeus Technologies
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          sx={{ color: 'rgba(255,255,255,0.85)', mt: 1, textShadow: '0 1px 4px rgba(0,0,0,0.4)' }}
+        >
+          India's clean energy transformation, simplified.
+        </Typography>
+      </Box>
 
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        style={{ width: '100%', padding: '8px', marginBottom: '10px' }}
-      />
-      <button
-        onClick={handleLogin}
-        style={{ width: '100%', padding: '10px', cursor: 'pointer' }}
-      >
-        Login
-      </button>
-    </div>
+    {/* Login card */}
+      <Container maxWidth="xs">
+        <LoginForm />
+      </Container>
+    </Box>
   );
-}
+};
 
-export default Login;
+export default LoginPage;
