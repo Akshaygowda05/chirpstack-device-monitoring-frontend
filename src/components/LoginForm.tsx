@@ -7,10 +7,9 @@ import {
   IconButton,
   Divider,
   Box,
-  InputAdornment,
 } from '@mui/material';
 import { useState } from 'react';
-import { FiInstagram, FiYoutube, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiInstagram, FiYoutube } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { authState } from '../store/authState';
@@ -19,7 +18,6 @@ import logo from '../assets/Aegeus-Technologies-logo.png';
 const LoginForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [, setAuth] = useRecoilState(authState);
   const [errorMessage, setErrorMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -101,12 +99,11 @@ const LoginForm = () => {
       <TextField
         fullWidth
         label="Password"
-        type={showPassword ? 'text' : 'password'}
+        type="password"
         margin="normal"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-       
       />
 
       {/* Login Button */}

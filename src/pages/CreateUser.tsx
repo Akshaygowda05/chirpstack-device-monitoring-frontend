@@ -1,12 +1,11 @@
 import { useState } from "react";
-import axios from "axios";
 import { createUser } from "../services/User.service";
 import { useNavigate } from "react-router-dom";
 
 
 function CreateUser() {
 
-    const naviagte = useNavigate();
+    const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,7 +36,7 @@ function CreateUser() {
       alert("User created successfully ✅");
       // after success move to user
 
-      naviagte("/users")
+      navigate("/users")
 
       
       setFormData({
@@ -101,7 +100,6 @@ function CreateUser() {
           value={formData.siteName}
           onChange={handleChange}
         />
-``
         <input
           type="text"
           name="applicationId"

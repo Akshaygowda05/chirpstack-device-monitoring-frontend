@@ -1,93 +1,133 @@
 import { useRecoilValue } from "recoil";
 import { authState } from "../store/authState";
 import { Link, useLocation } from "react-router-dom";
+import { Box, Typography, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Divider, useTheme } from "@mui/material";
+
+// Icons
+import DashboardIcon from '@mui/icons-material/Dashboard';
+import SmartToyIcon from '@mui/icons-material/SmartToy';
+import GroupsIcon from '@mui/icons-material/Groups';
+import BatteryChargingFullIcon from '@mui/icons-material/BatteryChargingFull';
+import ReceiptLongIcon from '@mui/icons-material/ReceiptLong';
+import AdminPanelSettingsIcon from '@mui/icons-material/AdminPanelSettings';
+import PeopleIcon from '@mui/icons-material/People';
 
 function Sidebar() {
   const user = useRecoilValue(authState);
   const { pathname } = useLocation();
+  const theme = useTheme();
 
   if (!user) return null;
 
   return (
-    <div style={{
+    <Box sx={{
       position: "fixed",
-      top: 50,
+      top: 64, // Matches Header height
       left: 0,
-      height: "100vh",
-      width: "200px",
-      background: "#f7f9fb",
-      borderRight: "1px solid #e4eaf0",
+      height: "calc(100vh - 64px)",
+      width: "240px",
+      bgcolor: "background.paper",
+      borderRight: "1px solid",
+      borderColor: "divider",
       display: "flex",
       flexDirection: "column",
       zIndex: 100,
+      transition: "all 0.3s ease",
     }}>
 
-      {user.siteName ? (
-        <div style={{
-          padding: "15px 20px",
-          fontSize: "12px",
-          fontWeight: 600,
-          color: "#2c3e50",
-        }}>
-          {user.siteName}
-        </div>
-      ) : null}
-
-      {/* USER NAV */}
-      {user.role === "USER" && (
-        <nav style={{ display: "flex", flexDirection: "column", padding: "10px 0" }}>
-          <NavItem to="/dashboard" label="DASHBOARD" pathname={pathname} />
-          <NavItem to="/devices" label="DEVICES" pathname={pathname} />
-          <NavItem to="/multicast-groups" label="MULTICAST GROUPS" pathname={pathname} />
-          <NavItem to="/Robotsbatteies" label="BATTERY" pathname={pathname} />
-          <NavItem to="/logs" label="LOGS" pathname={pathname} />
-        </nav>
+      {/* Site Name Header */}
+      {user.siteName && (
+        <Box sx={{ p: 3, pb: 1 }}>
+          <Typography variant="caption" sx={{ fontWeight: 800, color: "primary.main", letterSpacing: 1.5, textTransform: 'uppercase' }}>
+            Site Location
+          </Typography>
+          <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary" }}>
+            {user.siteName}
+          </Typography>
+        </Box>
       )}
 
-      {/* ADMIN NAV */}
-      {user.role === "ADMIN" && (
-        <nav style={{ display: "flex", flexDirection: "column", padding: "10px 0" }}>
-          <NavItem to="/admin" label="ADMIN PANEL" pathname={pathname} />
-          <NavItem to="/users" label="USERS" pathname={pathname} />
-        </nav>
-      )}
+      <Box sx={{ flexGrow: 1, px: 2, py: 2 }}>
+        <List component="nav" sx={{ p: 0 }}>
+          {/* USER NAV */}
+          {user.role === "USER" && (
+            <>
+              <NavItem to="/dashboard" label="Dashboard" icon={<DashboardIcon />} active={pathname === "/dashboard"} />
+              <NavItem to="/devices" label="Devices" icon={<SmartToyIcon />} active={pathname === "/devices"} />
+              <NavItem to="/multicast-groups" label="Multicast" icon={<GroupsIcon />} active={pathname === "/multicast-groups"} />
+              <NavItem to="/Robotsbatteies" label="Battery" icon={<BatteryChargingFullIcon />} active={pathname === "/Robotsbatteies"} />
+              <NavItem to="/logs" label="System Logs" icon={<ReceiptLongIcon />} active={pathname === "/logs"} />
+            </>
+          )}
 
-    </div>
+          {/* ADMIN NAV */}
+          {user.role === "ADMIN" && (
+            <>
+              <Typography variant="caption" sx={{ px: 2, py: 1, display: 'block', fontWeight: 800, color: 'text.secondary' }}>
+                ADMINISTRATION
+              </Typography>
+              <NavItem to="/admin" label="Admin Panel" icon={<AdminPanelSettingsIcon />} active={pathname === "/admin"} />
+              <NavItem to="/users" label="Manage Users" icon={<PeopleIcon />} active={pathname === "/users"} />
+            </>
+          )}
+        </List>
+      </Box>
+
+      {/* Bottom Footer Section */}
+      <Box sx={{ p: 2, borderTop: "1px solid", borderColor: "divider" }}>
+        <Typography variant="caption" color="text.secondary">
+          v2.4.0 • Aegeus IOT
+        </Typography>
+      </Box>
+    </Box>
   );
 }
 
-function NavItem({ to, label, pathname }: { to: string; label: string; pathname: string }) {
-  const active = pathname === to;
+// Sub-component for Nav Items to keep code clean
+function NavItem({ to, label, icon, active }: { to: string; label: string; icon: any; active: boolean }) {
+  const theme = useTheme();
 
   return (
-    <Link to={to} style={{ textDecoration: "none" }}>
-      <div style={{
-        position: "relative",
-        display: "flex",
-        alignItems: "center",
-        padding: "12px 20px",
-        background: active ? "#e8f5f2" : "transparent",
-        cursor: "pointer",
-      }}>
+    <ListItem disablePadding sx={{ mb: 0.5 }}>
+      <ListItemButton
+        component={Link}
+        to={to}
+        sx={{
+          borderRadius: 2,
+          py: 1.2,
+          bgcolor: active ? (theme.palette.mode === 'light' ? 'primary.lighter' : 'rgba(59, 130, 246, 0.1)') : 'transparent',
+          color: active ? 'primary.main' : 'text.secondary',
+          '&:hover': {
+            bgcolor: active ? 'none' : 'action.hover',
+          },
+        }}
+      >
+        <ListItemIcon sx={{ 
+          minWidth: 40, 
+          color: active ? 'primary.main' : 'inherit',
+          '& svg': { fontSize: 22 }
+        }}>
+          {icon}
+        </ListItemIcon>
+        <ListItemText 
+          primary={label} 
+          primaryTypographyProps={{ 
+            fontSize: '13px', 
+            fontWeight: active ? 800 : 500 
+          }} 
+        />
         {active && (
-          <div style={{
-            position: "absolute",
-            left: 0, top: 0, bottom: 0,
-            width: "3px",
-            background: "#2ec4a0",
-            borderRadius: "0 2px 2px 0",
+          <Box sx={{ 
+            width: 4, 
+            height: 20, 
+            bgcolor: 'primary.main', 
+            borderRadius: 2, 
+            position: 'absolute', 
+            right: 0 
           }} />
         )}
-        <span style={{
-          fontSize: "11px",
-          fontWeight: 700,
-          letterSpacing: "1px",
-          color: active ? "#1a4a5c" : "#7a9aaa",
-        }}>
-          {label}
-        </span>
-      </div>
-    </Link>
+      </ListItemButton>
+    </ListItem>
   );
 }
 
