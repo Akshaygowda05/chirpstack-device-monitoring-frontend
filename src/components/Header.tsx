@@ -9,13 +9,14 @@ import {
 } from "@mui/material";
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { ColorModeContext } from "../App"; // Import your theme context
+import { ColorModeContext } from "../App";
+
 
 function Header() {
   const user = useRecoilValue(authState);
   const resetAuth = useResetRecoilState(authState);
   const theme = useTheme();
-  const colorMode = useContext(ColorModeContext) as { toggleColorMode: () => void };
+  const colorMode = useContext(ColorModeContext)
 
   const logout = () => {
     localStorage.removeItem("auth");
@@ -50,7 +51,7 @@ function Header() {
           
           {/* Theme Toggle */}
           <Tooltip title={theme.palette.mode === 'dark' ? "Switch to Light" : "Switch to Dark"}>
-            <IconButton onClick={colorMode.toggleColorMode} color="inherit">
+            <IconButton onClick={colorMode.toggleColorMode} sx={{ color: 'text.primary' }}>
               {theme.palette.mode === 'dark' ? <Brightness7Icon fontSize="small" /> : <Brightness4Icon fontSize="small" />}
             </IconButton>
           </Tooltip>

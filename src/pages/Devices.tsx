@@ -72,9 +72,11 @@ function Devices() {
           placeholder="Search robots by name..."
           value={search}
           onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
-          InputProps={{
-            startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
-            sx: { borderRadius: 2, bgcolor: "#f9fafb" }
+          slotProps={{
+            input: {
+              startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
+              sx: { borderRadius: 2, bgcolor: "#f9fafb" }
+            }
           }}
         />
       </Box>

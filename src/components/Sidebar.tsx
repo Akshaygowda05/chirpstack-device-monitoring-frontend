@@ -111,10 +111,14 @@ function NavItem({ to, label, icon, active }: { to: string; label: string; icon:
         </ListItemIcon>
         <ListItemText 
           primary={label} 
-          primaryTypographyProps={{ 
-            fontSize: '13px', 
-            fontWeight: active ? 800 : 500 
-          }} 
+      slotProps={{
+    primary: {
+      sx: {
+        fontSize: '15px',
+        fontWeight: active ? 800 : 500 
+      },
+    },
+  }}
         />
         {active && (
           <Box sx={{ 

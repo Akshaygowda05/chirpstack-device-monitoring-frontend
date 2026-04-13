@@ -77,3 +77,14 @@ export const unicastDownlink =async(devEui:string,data:string) =>{
 export const fetchBattery = async (groupId:string) =>{
     return await api.get(`/v1/batteries/${groupId}`);
 }
+
+
+// this to fetch the devies for the home page dashboard
+export const fetchDevicesV1=async () =>{
+    return await api.get("/v1/devices");
+}
+
+
+export const getHomePannelsCleandata =async() =>{
+    return await api.get("/home/pannels-data");
+}
