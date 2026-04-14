@@ -34,7 +34,7 @@ export const fetchdevices = async (limit: number, offset: number,search:string) 
 
 // this is for the fetch the multicast group
 
-export const fetchMulticastGroups = async (limit: number, offset: number) => {
+export const fetchMulticastGroups = async (limit?: number, offset?: number) => {
     return await api.get("/multicast-groups",{
         params:{
             limit,
@@ -81,10 +81,19 @@ export const fetchBattery = async (groupId:string) =>{
 
 // this to fetch the devies for the home page dashboard
 export const fetchDevicesV1=async () =>{
+    console.log("Fetching devices from API...");
     return await api.get("/v1/devices");
 }
 
-
+// this is for the home page pannels data
 export const getHomePannelsCleandata =async() =>{
     return await api.get("/home/pannels-data");
 }
+
+// this is also for the homepae for the active and inactive devices
+
+export const getActiveInactiveCount = async() =>{
+    return await api.get("/home/active-inactive-count");
+
+}
+

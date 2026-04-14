@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { 
   Box, Typography, Button, TextField, InputAdornment, 
   Table, TableBody, TableCell, TableContainer, TableHead, 
-  TableRow, Paper, Pagination, IconButton, Tooltip, LinearProgress
+  TableRow, Paper, Pagination, IconButton, LinearProgress, useTheme, alpha,CircularProgress
 } from "@mui/material";
 
 import SearchIcon from '@mui/icons-material/Search';
@@ -15,10 +15,10 @@ import VisibilityIcon from '@mui/icons-material/Visibility';
 
 function Devices() {
   const navigate = useNavigate();
+  const theme = useTheme(); // Access the current theme
   const [devices, setDevices] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   
-  // PAGINATION STATE
   const [limit] = useState(10);
   const [offset, setOffset] = useState(0);
   const [search, setSearch] = useState("");
@@ -27,7 +27,6 @@ function Devices() {
     setLoading(true);
     try {
       const res = await fetchdevices(limit, offset, search);
-      // Directly setting the result from your JSON structure
       setDevices(res.data.result || []);
     } catch (err) {
       console.error("Error fetching devices", err);
@@ -50,20 +49,22 @@ function Devices() {
     return () => clearTimeout(delay);
   }, [offset, search]);
 
-  // Battery Logic: Calculates % based on 30V max
   const getBatteryInfo = (voltageStr: string) => {
     const voltage = parseFloat(voltageStr) || 0;
     const percentage = Math.min((voltage / 30) * 100, 100);
     return {
       volts: voltage,
       percent: percentage,
-      color: percentage < 20 ? "#ef4444" : "#10b981"
+      // Use theme colors for battery status
+      color: percentage < 20 ? theme.palette.error.main : theme.palette.success.main
     };
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: "#fff", minHeight: "100vh" }}>
-      <Typography variant="h4" sx={{ fontWeight: 800, mb: 3 }}>Robots</Typography>
+    <Box sx={{ p: { xs: 2, md: 4 }, bgcolor: "background.default", minHeight: "100vh" }}>
+      <Typography variant="h4" sx={{ fontWeight: 800, mb: 3, color: "text.primary" }}>
+        Robots
+      </Typography>
 
       <Box sx={{ mb: 4, maxWidth: 400 }}>
         <TextField
@@ -74,67 +75,112 @@ function Devices() {
           onChange={(e) => { setSearch(e.target.value); setOffset(0); }}
           slotProps={{
             input: {
-              startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment>,
-              sx: { borderRadius: 2, bgcolor: "#f9fafb" }
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon fontSize="small" sx={{ color: "text.secondary" }} />
+                </InputAdornment>
+              ),
+              sx: { 
+                borderRadius: 2, 
+                bgcolor: "background.paper", // Use theme paper color
+                "& fieldset": { borderColor: "divider" }
+              }
             }
           }}
         />
       </Box>
 
-      <TableContainer component={Paper} elevation={0} sx={{ border: "1px solid #eee", borderRadius: 3 }}>
+      <TableContainer 
+        component={Paper} 
+        elevation={0} 
+        sx={{ 
+          border: "1px solid", 
+          borderColor: "divider", 
+          borderRadius: 3,
+          bgcolor: "background.paper",
+          backgroundImage: "none" 
+        }}
+      >
         <Table>
-          <TableHead sx={{ bgcolor: "#f8f9fa" }}>
+          <TableHead sx={{ bgcolor: "action.hover" }}>
             <TableRow>
-              <TableCell sx={{ fontWeight: "bold" }}>ROBOT / DEVEUI</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>LOCATION</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>BATTERY </TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>LAST SEEN</TableCell>
-              <TableCell sx={{ fontWeight: "bold" }}>STATUS</TableCell>
-              <TableCell align="center" sx={{ fontWeight: "bold" }}>ACTIONS</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "text.primary" }}>ROBOT / DEVEUI</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "text.primary" }}>LOCATION</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "text.primary" }}>BATTERY </TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "text.primary" }}>LAST SEEN</TableCell>
+              <TableCell sx={{ fontWeight: "bold", color: "text.primary" }}>STATUS</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold", color: "text.primary" }}>ACTIONS</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {loading ? (
-              <TableRow><TableCell colSpan={6} align="center" sx={{ py: 8 }}>Loading Robots...</TableCell></TableRow>
+              <TableRow>
+               <TableCell colSpan={6} align="center" sx={{ py: 10 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+        <CircularProgress size={40} thickness={4} sx={{ color: "primary.main" }} />
+        <Typography variant="body2" sx={{ color: "text.secondary", fontWeight: 500 }}>
+          Synchronizing Fleet Data...
+        </Typography>
+      </Box>
+    </TableCell>
+              </TableRow>
             ) : (
               devices.map((device) => {
                 const battery = getBatteryInfo(device.batteryVoltage);
+                const isOnline = device.isActive === "online";
+
                 return (
-                  <TableRow key={device.devEui} hover>
+                  <TableRow key={device.devEui} hover sx={{ "&:last-child td, &:last-child th": { border: 0 } }}>
                     <TableCell>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                        <SmartToyIcon sx={{ color: "#3b82f6" }} />
+                        <SmartToyIcon sx={{ color: "primary.main" }} />
                         <Box>
-                          <Typography variant="body2" sx={{ fontWeight: 700 }}>{device.name}</Typography>
-                          <Typography variant="caption" color="textSecondary">{device.devEui}</Typography>
+                          <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary" }}>
+                            {device.name}
+                          </Typography>
+                          <Typography variant="caption" sx={{ color: "text.secondary" }}>
+                            {device.devEui}
+                          </Typography>
                         </Box>
                       </Box>
                     </TableCell>
 
-                    <TableCell sx={{ fontSize: "0.85rem" }}>{device.description}</TableCell>
+                    <TableCell sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
+                      {device.description}
+                    </TableCell>
 
                     <TableCell sx={{ minWidth: 140 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <Typography variant="caption" sx={{ fontWeight: 700, width: 35 }}>{device.batteryVoltage}V</Typography>
+                        <Typography variant="caption" sx={{ fontWeight: 700, width: 35, color: "text.primary" }}>
+                          {device.batteryVoltage}V
+                        </Typography>
                         <Box sx={{ flexGrow: 1 }}>
                           <LinearProgress 
                             variant="determinate" 
                             value={battery.percent} 
-                            sx={{ height: 6, borderRadius: 5, bgcolor: "#f3f4f6", "& .MuiLinearProgress-bar": { bgcolor: battery.color } }}
+                            sx={{ 
+                              height: 6, 
+                              borderRadius: 5, 
+                              bgcolor: "action.hover", 
+                              "& .MuiLinearProgress-bar": { bgcolor: battery.color } 
+                            }}
                           />
                         </Box>
                       </Box>
                     </TableCell>
 
-                    <TableCell sx={{ fontSize: "0.85rem" }}>
+                    <TableCell sx={{ fontSize: "0.85rem", color: "text.secondary" }}>
                       {formatDistanceToNow(new Date(device.lastSeenAt))} ago
                     </TableCell>
 
                     <TableCell>
                       <Box sx={{ 
                         display: 'inline-block', px: 1.5, py: 0.5, borderRadius: 1, fontSize: "0.7rem", fontWeight: "bold",
-                        bgcolor: device.isActive === "online" ? "#dcfce7" : "#fee2e2",
-                        color: device.isActive === "online" ? "#166534" : "#991b1b"
+                        // Dynamic background using alpha for better dark mode visibility
+                        bgcolor: isOnline ? alpha(theme.palette.success.main, 0.15) : alpha(theme.palette.error.main, 0.15),
+                        color: isOnline ? theme.palette.success.main : theme.palette.error.main,
+                        border: "1px solid",
+                        borderColor: isOnline ? alpha(theme.palette.success.main, 0.3) : alpha(theme.palette.error.main, 0.3)
                       }}>
                         {device.isActive.toUpperCase()}
                       </Box>
@@ -150,7 +196,7 @@ function Devices() {
                           <RestartAltIcon fontSize="small" />
                         </IconButton>
                         
-                        <IconButton size="small" onClick={() => navigate(`/devices/${device.devEui}`)}>
+                        <IconButton size="small" sx={{ color: "text.secondary" }} onClick={() => navigate(`/devices/${device.devEui}`)}>
                           <VisibilityIcon fontSize="small" />
                         </IconButton>
                       </Box>
@@ -162,10 +208,8 @@ function Devices() {
           </TableBody>
         </Table>
 
-        {/* Dynamic Pagination */}
-        <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', borderTop: "1px solid #eee" }}>
+        <Box sx={{ p: 2, display: 'flex', justifyContent: 'center', borderTop: "1px solid", borderColor: "divider" }}>
           <Pagination 
-            // If total is missing, we show at least 1 page or more if we have a full list of 10
             count={devices.length === limit ? Math.floor(offset / limit) + 2 : Math.floor(offset / limit) + 1} 
             page={Math.floor(offset / limit) + 1}
             color="primary" 

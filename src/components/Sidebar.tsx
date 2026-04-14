@@ -35,17 +35,7 @@ function Sidebar() {
       transition: "all 0.3s ease",
     }}>
 
-      {/* Site Name Header */}
-      {user.siteName && (
-        <Box sx={{ p: 3, pb: 1 }}>
-          <Typography variant="caption" sx={{ fontWeight: 800, color: "primary.main", letterSpacing: 1.5, textTransform: 'uppercase' }}>
-            Site Location
-          </Typography>
-          <Typography variant="body2" sx={{ fontWeight: 700, color: "text.primary" }}>
-            {user.siteName}
-          </Typography>
-        </Box>
-      )}
+     
 
       <Box sx={{ flexGrow: 1, px: 2, py: 2 }}>
         <List component="nav" sx={{ p: 0 }}>
