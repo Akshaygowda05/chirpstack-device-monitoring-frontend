@@ -97,3 +97,10 @@ export const getActiveInactiveCount = async() =>{
 
 }
 
+export const getApplicationLogs = async () => {
+    return await api.get("/events");
+}
+
+export const deleteUser = async (userId: number) => {
+    return await api.delete(`/v1/users/${userId}`);
+}

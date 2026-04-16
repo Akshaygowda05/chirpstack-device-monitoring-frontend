@@ -14,10 +14,11 @@ import HubIcon from "@mui/icons-material/Hub";
 import CalendarTodayIcon from "@mui/icons-material/CalendarToday";
 import CleaningHistoryChart from "../components/PannelsCleand";
 import ActiveInactiveStatusChart from "../components/ActiveInactive";
+import { ApplicationEvents } from "../components/ApplicationEvents";
 
 function Dashboard() {
   const user = useAuthInit();
-  const theme = useTheme(); // Access the theme object if needed
+  const theme = useTheme();
 
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
@@ -70,7 +71,6 @@ function Dashboard() {
     }
   }, [user]);
 
-  // ── Skeletons ──────────────────────────────────────────────────────────────
   if (loading) {
     return (
       <Box sx={{ bgcolor: "background.default", minHeight: "100vh", py: { xs: 3, md: 4 } }}>
@@ -92,30 +92,14 @@ function Dashboard() {
     );
   }
 
-  // ── Main ───────────────────────────────────────────────────────────────────
   return (
     <Box sx={{ bgcolor: "background.default", minHeight: "100vh", transition: "background 0.3s ease" }}>
       <Container maxWidth="xl" sx={{ py: { xs: 3, md: 4 } }}>
 
         {/* ── Page header ── */}
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: { sm: "center" },
-            flexDirection: { xs: "column", sm: "row" },
-            justifyContent: "space-between",
-            gap: 1,
-            mb: 3,
-          }}
-        >
+        <Box sx={{ display: "flex", alignItems: { sm: "center" }, flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", gap: 1, mb: 3 }}>
           <Box>
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: { xs: "1.25rem", sm: "1.4rem", md: "1.5rem" },
-                color: "text.primary",
-              }}
-            >
+            <Typography sx={{ fontWeight: 700, fontSize: { xs: "1.25rem", sm: "1.4rem", md: "1.5rem" }, color: "text.primary" }}>
               Robots Overview
             </Typography>
             <Typography sx={{ fontSize: "0.82rem", color: "text.secondary", mt: 0.3 }}>
@@ -123,21 +107,7 @@ function Dashboard() {
             </Typography>
           </Box>
 
-          {/* Date badge */}
-          <Box
-            sx={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 0.8,
-              px: 1.8,
-              py: 0.8,
-              borderRadius: 1.5,
-              border: "1px solid",
-              borderColor: "divider",
-              bgcolor: "background.paper",
-              cursor: "default",
-            }}
-          >
+          <Box sx={{ display: "inline-flex", alignItems: "center", gap: 0.8, px: 1.8, py: 0.8, borderRadius: 1.5, border: "1px solid", borderColor: "divider", bgcolor: "background.paper" }}>
             <CalendarTodayIcon sx={{ fontSize: 14, color: "text.secondary" }} />
             <Typography sx={{ fontSize: "0.78rem", color: "text.primary", fontWeight: 500 }}>
               Last 24 Hours
@@ -146,199 +116,83 @@ function Dashboard() {
         </Box>
 
         {/* ── Stat cards ── */}
-        <Box
-          sx={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: { xs: 1.5, sm: 2 },
-            mb: { xs: 3, md: 4 },
-          }}
-        >
-          <StatCard
-            title="Total Devices"
-            count={totalDevices}
-            icon={DevicesOtherIcon}
-            iconColor={theme.palette.primary.main}
-            subtitle={`+0 vs last month`}
-          />
-          <StatCard
-            title="Online Now"
-            count={activeCount}
-            icon={WifiIcon}
-            iconColor="#22c55e"
-            subtitle={`${totalDevices ? ((activeCount / totalDevices) * 100).toFixed(1) : 0}% uptime active`}
-            onClick={() => handleOpen("active")}
-          />
-          <StatCard
-            title="Offline"
-            count={inactiveCount}
-            icon={WifiOffIcon}
-            iconColor="#f59e0b"
-            subtitle="Click to view devices"
-            onClick={() => handleOpen("inactive")}
-          />
-          <StatCard
-            title="Total Groups"
-            count={multicastCount}
-            icon={HubIcon}
-            iconColor="#06b6d4"
-          />
+        <Box sx={{ display: "flex", flexWrap: "wrap", gap: { xs: 1.5, sm: 2 }, mb: { xs: 3, md: 4 } }}>
+          <StatCard title="Total Devices" count={totalDevices} icon={DevicesOtherIcon} iconColor={theme.palette.primary.main} subtitle={`+0 vs last month`} />
+          <StatCard title="Online Now" count={activeCount} icon={WifiIcon} iconColor="#22c55e" subtitle={`${totalDevices ? ((activeCount / totalDevices) * 100).toFixed(1) : 0}% uptime active`} onClick={() => handleOpen("active")} />
+          <StatCard title="Offline" count={inactiveCount} icon={WifiOffIcon} iconColor="#f59e0b" subtitle="Click to view devices" onClick={() => handleOpen("inactive")} />
+          <StatCard title="Total Groups" count={multicastCount} icon={HubIcon} iconColor="#06b6d4" />
         </Box>
 
-        {/* ── Main content area ── */}
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: { xs: "1fr", lg: "1fr 300px" },
-            gap: { xs: 2, md: 2.5 },
-            alignItems: "start",
-          }}
-        >
-        
-          {/* LEFT PANEL: Cleaning History */}
-  <Box
-    sx={{
-      bgcolor: "background.paper",
-      borderRadius: 2,
-      border: "1px solid",
-      borderColor: "divider",
-      p: { xs: 2, sm: 3 },
-      minHeight: 400, // Adjusted to fit the bar chart comfortably
-      display: "flex",
-      flexDirection: "column",
-    }}
-  >
-    <Typography
-      sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary", mb: 0.4 }}
-    >
-      Cleaning Performance
-    </Typography>
-    <Typography sx={{ fontSize: "0.76rem", color: "text.secondary", mb: 2 }}>
-      History of panels cleaned over the last 5 days
-    </Typography>
-    <Divider sx={{ mb: 3 }} />
+        {/* ── Top Grid Panel ── */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 350px" }, gap: { xs: 2, md: 2.5 }, alignItems: "start", mb: 2.5 }}>
+          {/* Cleaning History */}
+          <Box sx={{ bgcolor: "background.paper", borderRadius: 2, border: "1px solid", borderColor: "divider", p: { xs: 2, sm: 3 }, minHeight: 400, display: "flex", flexDirection: "column" }}>
+            <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary", mb: 0.4 }}>Cleaning Performance</Typography>
+            <Typography sx={{ fontSize: "0.76rem", color: "text.secondary", mb: 2 }}>History of panels cleaned over the last 5 days</Typography>
+            <Divider sx={{ mb: 3 }} />
+            <Box sx={{ flexGrow: 1, width: "100%" }}><CleaningHistoryChart /></Box>
+          </Box>
 
-    {/* Integrated API Chart */}
-    <Box sx={{ flexGrow: 1, width: "100%" }}>
-      <CleaningHistoryChart />
-    </Box>
-  </Box>
-
-
-          {/* Right panel */}
-          <Box
-            sx={{
-              bgcolor: "background.paper",
-              borderRadius: 2,
-              border: "1px solid",
-              borderColor: "divider",
-              p: { xs: 2, sm: 3 },
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-            }}
-          >
-            <Typography
-              sx={{
-                fontWeight: 700,
-                fontSize: "0.95rem",
-                color: "text.primary",
-                mb: 0.4,
-                alignSelf: "flex-start",
-              }}
-            >
-              Device Distribution
-            </Typography>
-            <Typography
-              sx={{
-                fontSize: "0.76rem",
-                color: "text.secondary",
-                mb: 2,
-                alignSelf: "flex-start",
-              }}
-            >
-              Active vs offline breakdown
-            </Typography>
+          {/* Device Distribution */}
+          <Box sx={{ bgcolor: "background.paper", borderRadius: 2, border: "1px solid", borderColor: "divider", p: { xs: 2, sm: 3 }, display: "flex", flexDirection: "column", alignItems: "center" }}>
+            <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary", mb: 0.4, alignSelf: "flex-start" }}>Device Distribution</Typography>
+            <Typography sx={{ fontSize: "0.76rem", color: "text.secondary", mb: 2, alignSelf: "flex-start" }}>Active vs offline breakdown</Typography>
             <Divider sx={{ mb: 2, alignSelf: "stretch" }} />
-
-            <Box sx={{ width: "100%", maxWidth: 240 }}>
-              <DeviceStatusChart
-                activeCount={activeCount}
-                inactiveCount={inactiveCount}
-              />
-            </Box>
-
-            {/* Legend */}
+            <Box sx={{ width: "100%", maxWidth: 240 }}><DeviceStatusChart activeCount={activeCount} inactiveCount={inactiveCount} /></Box>
             <Box sx={{ mt: 2, display: "flex", gap: 2, flexWrap: "wrap", justifyContent: "center" }}>
-              {[
-                { label: "Active", color: "#22c55e", count: activeCount },
-                { label: "Offline", color: theme.palette.text.disabled, count: inactiveCount },
-              ].map((item) => (
+              {[{ label: "Active", color: "#22c55e", count: activeCount }, { label: "Offline", color: theme.palette.text.disabled, count: inactiveCount }].map((item) => (
                 <Box key={item.label} sx={{ display: "flex", alignItems: "center", gap: 0.6 }}>
-                  <Box
-                    sx={{ width: 10, height: 10, borderRadius: "50%", bgcolor: item.color, flexShrink: 0 }}
-                  />
-                  <Typography sx={{ fontSize: "0.74rem", color: "text.secondary" }}>
-                    {item.label}{" "}
-                    <Box component="span" sx={{ fontWeight: 600, color: "text.primary" }}>
-                      ({totalDevices ? ((item.count / totalDevices) * 100).toFixed(0) : 0}%)
-                    </Box>
-                  </Typography>
+                  <Box sx={{ width: 10, height: 20, borderRadius: "50%", bgcolor: item.color }} />
+                  <Typography sx={{ fontSize: "0.74rem", color: "text.secondary" }}>{item.label} <Box component="span" sx={{ fontWeight: 600, color: "text.primary" }}>({totalDevices ? ((item.count / totalDevices) * 100).toFixed(0) : 0}%)</Box></Typography>
                 </Box>
               ))}
             </Box>
           </Box>
         </Box>
 
-        {/* this is below the main content */}
-        <Box
-  sx={{
-    display: "grid",
-    // Left side is flexible (1fr), right side is 300px for your Pie Chart
-    gridTemplateColumns: { xs: "1fr", lg: "1fr 300px" },
-    gap: { xs: 2, md: 2.5 },
-    alignItems: "start",
-  }}
->
-  {/* LEFT PANEL: Active/Inactive Bar Chart */}
-  <Box
-    sx={{
-      bgcolor: "background.paper",
-      borderRadius: 2,
-      border: "1px solid",
-      borderColor: "divider",
-      p: { xs: 2, sm: 3 },
-      display: "flex",
-      flexDirection: "column",
-      mt: 2,
-    }}
-  >
-    <Box sx={{ mb: 2 }}>
-      <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary" }}>
-        Device Status Trends
-      </Typography>
-      <Typography sx={{ fontSize: "0.76rem", color: "text.secondary" }}>
-        Active vs inactive devices for the last 5 days
-      </Typography>
-    </Box>
+        {/* ── Bottom Grid Panel: Trends & Live Logs ── */}
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 350px" }, gap: { xs: 2, md: 2.5 }, alignItems: "stretch" }}>
+          {/* Device Status Trends */}
+          <Box sx={{ bgcolor: "background.paper", borderRadius: 2, border: "1px solid", borderColor: "divider", p: { xs: 2, sm: 3 }, display: "flex", flexDirection: "column" }}>
+            <Box sx={{ mb: 2 }}>
+              <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary" }}>Device Status Trends</Typography>
+              <Typography sx={{ fontSize: "0.76rem", color: "text.secondary" }}>Active vs inactive devices for the last 5 days</Typography>
+            </Box>
+            <Divider sx={{ mb: 3 }} />
+            <Box sx={{ width: "100%", flexGrow: 1 }}><ActiveInactiveStatusChart /></Box>
+          </Box>
 
-    <Divider sx={{ mb: 3 }} />
-
-    <Box sx={{ width: "100%" }}>
-      <ActiveInactiveStatusChart />
-    </Box>
-  </Box>
-
-</Box>
+          {/* APPLICATION EVENTS (FIXED SIDEBAR) */}
+          <Box sx={{ 
+            bgcolor: "background.paper", 
+            borderRadius: 2, 
+            border: "1px solid", 
+            borderColor: "divider", 
+            display: "flex", 
+            flexDirection: "column",
+            height: { xs: "600px", lg: "auto" }, 
+            maxHeight: "640px", 
+            overflow: "hidden" 
+          }}>
+            <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "rgba(0,0,0,0.02)" }}>
+              <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary" }}>Live System Events</Typography>
+            </Box>
+            
+            <Box sx={{ 
+              flexGrow: 1, 
+              overflowY: "auto", 
+              p: 2,
+              "&::-webkit-scrollbar": { width: "5px" },
+              "&::-webkit-scrollbar-thumb": { bgcolor: "#e0e0e0", borderRadius: "10px" }
+            }}>
+              <ApplicationEvents />
+            </Box>
+          </Box>
+        </Box>
 
       </Container>
 
-      <DeviceModal
-        open={openModal}
-        onClose={handleClose}
-        title={modalType === "active" ? "Online Devices" : "Offline Devices"}
-        devices={modalType === "active" ? activeDevices : inactiveDevices}
-      />
+      <DeviceModal open={openModal} onClose={handleClose} title={modalType === "active" ? "Online Devices" : "Offline Devices"} devices={modalType === "active" ? activeDevices : inactiveDevices} />
     </Box>
   );
 }
