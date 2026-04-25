@@ -151,9 +151,15 @@ function Dashboard() {
         </Box>
 
         {/* ── Bottom Grid Panel: Trends & Live Logs ── */}
-        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", lg: "1fr 350px" }, gap: { xs: 2, md: 2.5 }, alignItems: "stretch" }}>
+        <Box sx={{ display: "grid",
+           gridTemplateColumns: { xs: "1fr", lg: "1fr 350px" }, 
+           gap: { xs: 2, md: 2.5 }, alignItems: "start" }}>
           {/* Device Status Trends */}
-          <Box sx={{ bgcolor: "background.paper", borderRadius: 2, border: "1px solid", borderColor: "divider", p: { xs: 2, sm: 3 }, display: "flex", flexDirection: "column" }}>
+          <Box sx={{ bgcolor: "background.paper",
+             borderRadius: 2, border: "1px solid", borderColor: "divider", p: { xs: 2, sm: 3 }, display: "flex", 
+             flexDirection: "column",
+             minHeight: "500px"
+             }}>
             <Box sx={{ mb: 2 }}>
               <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary" }}>Device Status Trends</Typography>
               <Typography sx={{ fontSize: "0.76rem", color: "text.secondary" }}>Active vs inactive devices for the last 5 days</Typography>
@@ -163,31 +169,30 @@ function Dashboard() {
           </Box>
 
           {/* APPLICATION EVENTS (FIXED SIDEBAR) */}
-          <Box sx={{ 
-            bgcolor: "background.paper", 
-            borderRadius: 2, 
-            border: "1px solid", 
-            borderColor: "divider", 
-            display: "flex", 
-            flexDirection: "column",
-            height: { xs: "600px", lg: "auto" }, 
-            maxHeight: "640px", 
-            overflow: "hidden" 
-          }}>
-            <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "rgba(0,0,0,0.02)" }}>
-              <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary" }}>Live System Events</Typography>
-            </Box>
-            
-            <Box sx={{ 
-              flexGrow: 1, 
-              overflowY: "auto", 
-              p: 2,
-              "&::-webkit-scrollbar": { width: "5px" },
-              "&::-webkit-scrollbar-thumb": { bgcolor: "#e0e0e0", borderRadius: "10px" }
-            }}>
-              <ApplicationEvents />
-            </Box>
-          </Box>
+<Box sx={{ 
+    bgcolor: "background.paper", 
+    borderRadius: 2, 
+    border: "1px solid", 
+    borderColor: "divider", 
+    display: "flex", 
+    flexDirection: "column",
+    height: "500px", // Match the height of the Trends card for symmetry
+    overflow: "hidden" 
+  }}>
+    <Box sx={{ p: 2, borderBottom: "1px solid", borderColor: "divider", bgcolor: "rgba(0,0,0,0.02)" }}>
+      <Typography sx={{ fontWeight: 700, fontSize: "0.95rem", color: "text.primary" }}>Live System Events</Typography>
+    </Box>
+    
+    <Box sx={{ 
+      flexGrow: 1, 
+      overflowY: "auto", 
+      p: 2,
+      "&::-webkit-scrollbar": { width: "5px" },
+      "&::-webkit-scrollbar-thumb": { bgcolor: "#e0e0e0", borderRadius: "10px" }
+    }}>
+      <ApplicationEvents />
+    </Box>
+  </Box>
         </Box>
 
       </Container>

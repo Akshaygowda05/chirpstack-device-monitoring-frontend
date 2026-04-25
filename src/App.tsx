@@ -14,6 +14,7 @@ import MulticastGroup from "./pages/MulticastGorup";
 import BatteryPages from "./pages/BatteryPages";
 import Logs from "./pages/Logs";
 import { useSocketInit } from "./hooks/useSocketInit";
+import DeviceDetail from "./pages/deviceDetail";
 
 // so ondu context create maditivi, admele adannu useContext hook use madi consume madtivi
 export const ColorModeContext = createContext({ toggleColorMode: () => {} });
@@ -128,6 +129,17 @@ function App() {
                 <ProtectedRoute allowedRoles={['ADMIN']}>
                   <MainLayout>
                     <Users />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+
+             <Route
+              path="/devices/:devEui"
+              element={
+                <ProtectedRoute allowedRoles={['USER']}>
+                  <MainLayout>
+                    <DeviceDetail />
                   </MainLayout>
                 </ProtectedRoute>
               }

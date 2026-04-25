@@ -104,3 +104,23 @@ export const getApplicationLogs = async () => {
 export const deleteUser = async (userId: number) => {
     return await api.delete(`/v1/users/${userId}`);
 }
+
+
+
+export const fetchDataofRobot = async(devEui:string) =>{
+    return  await api.get(`v1/device/${devEui}/data`)
+}  
+
+export const getCoreHealth =() =>{
+    return api.get("/health");
+}
+
+export const getGateway = async () =>{
+    const res = await api.get("/allGateways");
+    return res.data;
+}
+
+
+export const fetchErrorLogs = async () =>{
+    return await api.get("/errors");
+}

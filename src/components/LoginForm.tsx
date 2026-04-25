@@ -7,6 +7,7 @@ import {
   IconButton,
   Divider,
   Box,
+  AlertTitle,
 } from '@mui/material';
 import { useState } from 'react';
 import { FiInstagram, FiYoutube } from 'react-icons/fi';
@@ -46,6 +47,7 @@ const LoginForm = () => {
       if (role === 'ADMIN') navigate('/admin');
       else if (role === 'USER') navigate('/dashboard');
       else navigate('/');
+      <AlertTitle>logined succesfully</AlertTitle>
     } catch (error: any) {
       if (error.response?.status === 401) {
         setErrorMessage('Invalid email or password.');
@@ -74,7 +76,7 @@ const LoginForm = () => {
       </Box>
 
       {/* Heading */}
-      <Typography variant="h6" align="center" color="#1a1a2e" gutterBottom sx={{ fontWeight: 700 }}>
+      <Typography variant="h6" align="center" color="#000000" gutterBottom sx={{ fontWeight: 700 }}>
         Welcome Back
       </Typography>
       <Typography variant="body2" align="center" color="text.secondary" sx={{ mb: 2 }}>
