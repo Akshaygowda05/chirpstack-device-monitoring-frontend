@@ -124,3 +124,34 @@ export const getGateway = async () =>{
 export const fetchErrorLogs = async () =>{
     return await api.get("/errors");
 }
+
+export const fetchSiteConfigStatus = async () => {
+    return await api.get("/v1/site-config/status");
+}
+
+export const updateSiteConfig = async (configData: any) => {
+    return await api.put("/v1/site-config", configData);
+}
+
+export const getsiteConfig = async () =>{
+    return await api.get("/v1/site-config");
+}
+
+export const fetchReports = async (groupId: string, startDate: string, endDate?: string) => {
+    return await api.get("/reports/data", {
+        params: {
+            groupId,
+            startDate,
+        ...(endDate && { endDate })
+        }
+    });
+}
+
+export const fetchSummary = async (startDate: string, endDate?: string) => {
+    return await api.get("/reports/total-panels-cleaned", {
+        params: {   
+            startDate,
+            ...(endDate && { endDate }) 
+        }
+    });
+}

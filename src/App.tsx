@@ -15,6 +15,8 @@ import BatteryPages from "./pages/BatteryPages";
 import Logs from "./pages/Logs";
 import { useSocketInit } from "./hooks/useSocketInit";
 import DeviceDetail from "./pages/deviceDetail";
+import { SiteConfigPage } from "./pages/siteconfigPage";
+import Report from "./pages/Report";
 
 // so ondu context create maditivi, admele adannu useContext hook use madi consume madtivi
 export const ColorModeContext = createContext({ toggleColorMode: () => {} });
@@ -92,6 +94,16 @@ function App() {
                 </ProtectedRoute>
               } />
 
+               <Route
+              path="/site-config"
+              element={
+                <ProtectedRoute allowedRoles={["USER"]}>
+                  <MainLayout>
+                    <SiteConfigPage />
+                  </MainLayout>
+                </ProtectedRoute>
+              } />
+
             <Route
               path="/Robotsbatteies"
               element={
@@ -140,6 +152,16 @@ function App() {
                 <ProtectedRoute allowedRoles={['USER']}>
                   <MainLayout>
                     <DeviceDetail />
+                  </MainLayout>
+                </ProtectedRoute>
+              }
+            />
+             <Route
+              path="/reports"
+              element={
+                <ProtectedRoute allowedRoles={['USER']}>
+                  <MainLayout>
+                    <Report />
                   </MainLayout>
                 </ProtectedRoute>
               }

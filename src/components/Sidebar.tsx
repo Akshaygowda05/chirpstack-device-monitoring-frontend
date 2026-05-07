@@ -22,7 +22,7 @@ function Sidebar() {
   return (
     <Box sx={{
       position: "fixed",
-      top: 64, // Matches Header height
+      top: 68, // Matches Header height
       left: 0,
       height: "calc(100vh - 64px)",
       width: "240px",
@@ -47,6 +47,8 @@ function Sidebar() {
               <NavItem to="/multicast-groups" label="Multicast" icon={<GroupsIcon />} active={pathname === "/multicast-groups"} />
               <NavItem to="/Robotsbatteies" label="Battery" icon={<BatteryChargingFullIcon />} active={pathname === "/Robotsbatteies"} />
               <NavItem to="/logs" label="System Logs" icon={<ReceiptLongIcon />} active={pathname === "/logs"} />
+              <NavItem to="/reports" label="Reports" icon={<ReceiptLongIcon />} active={pathname === "/reports"} />
+
             </>
           )}
 
