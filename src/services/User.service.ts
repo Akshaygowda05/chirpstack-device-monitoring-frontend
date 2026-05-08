@@ -140,13 +140,12 @@ export const getsiteConfig = async () =>{
 export const fetchReports = async (groupId: string, startDate: string, endDate?: string) => {
     return await api.get("/reports/data", {
         params: {
-            groupId,
+            multicast: groupId,  // ← this is what backend expects
             startDate,
-        ...(endDate && { endDate })
+            ...(endDate && { endDate })
         }
     });
 }
-
 export const fetchSummary = async (startDate: string, endDate?: string) => {
     return await api.get("/reports/total-panels-cleaned", {
         params: {   

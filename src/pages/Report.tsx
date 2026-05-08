@@ -3,8 +3,12 @@ import {
   Box, Typography, Card, CardContent, Grid, MenuItem, Select,
   FormControl, InputLabel, TextField, Button, CircularProgress,
   Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
-  Paper, Stack, alpha, useTheme
+  Paper, Stack, alpha, useTheme, Divider
 } from "@mui/material";
+import DownloadIcon from "@mui/icons-material/Download";
+import AnalyticsIcon from '@mui/icons-material/Analytics';
+import PrecisionManufacturingIcon from '@mui/icons-material/PrecisionManufacturing';
+import CleaningServicesIcon from '@mui/icons-material/CleaningServices';
 import { fetchMulticastGroups, fetchReports, fetchSummary } from "../services/User.service";
 
 const getToday = () => new Date().toISOString().split("T")[0];
@@ -14,72 +18,54 @@ interface RobotReport { deviceName: string; totalPanelsCleaned: number; location
 
 function Report() {
   const theme = useTheme();
-  
+
   const [groups, setGroups] = useState<Group[]>([]);
   const [selectedGroup, setSelectedGroup] = useState("");
   const [startDate, setStartDate] = useState(getToday());
   const [endDate, setEndDate] = useState(getToday());
   const [loading, setLoading] = useState(false);
-  
-  const [robotData, setRobotData] = useState<Record<string, RobotReport>>({});
-  const [summary, setSummary] = useState({ totalPanelsCleaned: 0, totalRobots: 0 });
+  const [error, setError] = useState<string | null>(null);
 
-  // 1. Core Fetch Function
+  const [robotData, setRobotData] = useState<Record<string, RobotReport>>({});
+  const [groupTotal, setGroupTotal] = useState(0); // Specific Block Total
+  const [summary, setSummary] = useState({ totalRobots: 0 });
+
   const fetchReportData = useCallback(async (groupId: string, start: string, end: string) => {
     if (!groupId || !start) return;
-    
+
     setLoading(true);
-    console.log("Fetching for:", { groupId, start, end });
+    setError(null);
 
     try {
-      const [reportRes, summaryRes] = await Promise.all([
-        fetchReports(groupId, start, end),
-        fetchSummary(start, end)
-      ]);
-
-
-
+      const reportRes = await fetchReports(groupId, start, end);
+      const rawData = reportRes.data;
       
-      const rawData = reportRes.data; 
-      console.log("Raw Report API Response:", rawData);
-
       const robots: Record<string, RobotReport> = {};
       let totalFromReport = 0;
 
-      // Iterate through the object keys
+      // Extract the block total AND the robot list separately
       Object.entries(rawData).forEach(([key, value]) => {
         if (key === "totalPanelsCleaned") {
           totalFromReport = value as number;
         } else {
-          // It's a robot object (like "ac1f0...")
           robots[key] = value as RobotReport;
         }
       });
 
       setRobotData(robots);
-
-      // Handle Summary API response
-      const sData = summaryRes.data?.totalRobots || {};
+      setGroupTotal(totalFromReport); // Saving that specific "totalPanelsCleaned" from JSON
       setSummary({
-        // Use the total from your specific report JSON if summary API is empty
-        totalPanelsCleaned: sData.totalPanelsCleaned || totalFromReport || 0,
-        totalRobots: sData.totalRobots || Object.keys(robots).length,
+        totalRobots: Object.keys(robots).length,
       });
 
-    } catch (err) {
-      console.error("Fetch Error:", err);
+    } catch (err: any) {
+      console.error("❌ Report fetch failed:", err);
+      setError(err?.message || "Failed to fetch report. Please try again.");
     } finally {
       setLoading(false);
     }
   }, []);
 
-
-  const fetchReportDataRef = useRef(fetchReportData);
-    useEffect(() => {
-        fetchReportDataRef.current = fetchReportData;
-    }, [fetchReportData]);
-
-  // 2. Load Groups and Auto-Fetch on Refresh
   useEffect(() => {
     const init = async () => {
       try {
@@ -87,126 +73,199 @@ function Report() {
         const groupList = res.data.result || [];
         setGroups(groupList);
 
-        // Check if user had a group selected before refresh
         const storedGroupId = sessionStorage.getItem("selectedGroupIdForReport");
-        if (storedGroupId) {
-          setSelectedGroup(storedGroupId);
-          // Trigger the fetch automatically
-          fetchReportData(storedGroupId, getToday(), getToday());
+        const initialId = storedGroupId || groupList[0]?.id;
+
+        if (initialId) {
+          setSelectedGroup(initialId);
+          fetchReportData(initialId, getToday(), getToday());
         }
       } catch (err) {
-        console.error("Init Error:", err);
+        setError("Failed to load groups. Please refresh.");
       }
     };
     init();
   }, [fetchReportData]);
 
   const handleGenerate = () => {
-    // Save selection so it persists on refresh
+    if (!selectedGroup) return setError("Please select a group.");
     sessionStorage.setItem("selectedGroupIdForReport", selectedGroup);
     fetchReportData(selectedGroup, startDate, endDate);
   };
 
-  const handleClear = () => {
-    const today = getToday();
-    setStartDate(today);
-    setEndDate(today);
-    setSelectedGroup("");
-    setRobotData({});
-    setSummary({ totalPanelsCleaned: 0, totalRobots: 0 });
-    sessionStorage.removeItem("selectedGroupIdForReport");
+  const handleDownload = () => {
+    const rows = [
+      ["Robot Name", "Location", "Panels Cleaned"],
+      ...Object.values(robotData).map(r => [r.deviceName, r.location, r.totalPanelsCleaned]),
+      ["", "GROUP TOTAL", groupTotal],
+      ["Date Range", `${startDate} to ${endDate}`]
+    ];
+    const csv = rows.map(r => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `Report-${startDate}.csv`;
+    a.click();
   };
 
   return (
-    <Box sx={{ p: { xs: 2, md: 4 } }}>
-      <Typography variant="h4" fontWeight={800} mb={4}>Robot Cleaning Report</Typography>
+    <Box sx={{ p: { xs: 2, md: 4 }, maxWidth: "1200px", margin: "0 auto" }}>
+      {/* HEADER SECTION */}
+      <Stack direction="row" justifyContent="space-between" alignItems="center" mb={4}>
+        <Box>
+          <Typography variant="h4" fontWeight={800} color="primary.main">
+            Cleaning Analytics
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            Monitoring robot performance and panel efficiency
+          </Typography>
+        </Box>
+        <Button
+          variant="contained"
+          startIcon={<DownloadIcon />}
+          onClick={handleDownload}
+          disabled={Object.keys(robotData).length === 0}
+          sx={{ borderRadius: 2, textTransform: "none", px: 3, display: { xs: 'none', sm: 'flex' } }}
+        >
+          Export CSV
+        </Button>
+      </Stack>
 
-      <Card sx={{ mb: 4, borderRadius: 3 }}>
-        <CardContent>
-          <Stack direction={{ xs: "column", md: "row" }} spacing={2}>
-            <FormControl fullWidth size="small">
-              <InputLabel>Select Group</InputLabel>
-              <Select
-                value={selectedGroup}
-                label="Select Group"
-                onChange={(e) => setSelectedGroup(e.target.value)}
-              >
-                {groups.map((g) => <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>)}
-              </Select>
-            </FormControl>
-
-            <TextField
-              fullWidth size="small" type="date" label="Start Date"
-              InputLabelProps={{ shrink: true }}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-
-            <TextField
-              fullWidth size="small" type="date" label="End Date"
-              InputLabelProps={{ shrink: true }}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-            />
-
-            <Button variant="contained" onClick={handleGenerate} disabled={loading} sx={{ px: 4 }}>
-              {loading ? <CircularProgress size={24} /> : "Generate"}
-            </Button>
-            <Button variant="outlined" onClick={handleClear}>Clear</Button>
-          </Stack>
+      {/* FILTER CARD */}
+      <Card sx={{ mb: 4, borderRadius: 4, boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}>
+        <CardContent sx={{ p: 3 }}>
+          <Grid container spacing={2} alignItems="center">
+            <Grid item xs={12} md={4}>
+              <FormControl fullWidth size="small">
+                <InputLabel>Target Group</InputLabel>
+                <Select
+                  value={selectedGroup}
+                  label="Target Group"
+                  onChange={(e) => setSelectedGroup(e.target.value)}
+                >
+                  {groups.map((g) => <MenuItem key={g.id} value={g.id}>{g.name}</MenuItem>)}
+                </Select>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6} md={2.5}>
+              <TextField
+                fullWidth size="small" type="date" label="Start"
+                InputLabelProps={{ shrink: true }}
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={6} md={2.5}>
+              <TextField
+                fullWidth size="small" type="date" label="End"
+                InputLabelProps={{ shrink: true }}
+                value={endDate}
+                onChange={(e) => setEndDate(e.target.value)}
+              />
+            </Grid>
+            <Grid item xs={12} md={3}>
+              <Stack direction="row" spacing={1}>
+                <Button 
+                  fullWidth variant="contained" 
+                  onClick={handleGenerate} 
+                  disabled={loading}
+                  sx={{ borderRadius: 2 }}
+                >
+                  {loading ? <CircularProgress size={24} /> : "Generate"}
+                </Button>
+                <Button 
+                   variant="outlined" color="inherit" 
+                   onClick={() => { setRobotData({}); setGroupTotal(0); }}
+                   sx={{ borderRadius: 2 }}
+                >
+                  Reset
+                </Button>
+              </Stack>
+            </Grid>
+          </Grid>
+          {error && <Typography color="error" variant="caption" mt={1} display="block"> {error}</Typography>}
         </CardContent>
       </Card>
 
+      {/* SUMMARY CARDS */}
       <Grid container spacing={3} mb={4}>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ bgcolor: alpha(theme.palette.primary.main, 0.05), textAlign: 'center' }}>
+        <Grid item xs={12} sm={6}>
+          <Card sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', bgcolor: alpha(theme.palette.primary.main, 0.02) }}>
             <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">Total Panels Cleaned</Typography>
-              <Typography variant="h3" fontWeight={800}>{summary.totalPanelsCleaned.toLocaleString()}</Typography>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Box sx={{ bgcolor: 'primary.main', p: 1, borderRadius: 2, display: 'flex' }}>
+                  <CleaningServicesIcon sx={{ color: 'white' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">Total Panels Cleaned</Typography>
+                  <Typography variant="h4" fontWeight={800}>{groupTotal.toLocaleString()}</Typography>
+                </Box>
+              </Stack>
             </CardContent>
           </Card>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Card sx={{ bgcolor: alpha(theme.palette.success.main, 0.05), textAlign: 'center' }}>
+        <Grid item xs={12} sm={6}>
+          <Card sx={{ borderRadius: 4, border: '1px solid', borderColor: 'divider', bgcolor: alpha(theme.palette.success.main, 0.02) }}>
             <CardContent>
-              <Typography variant="subtitle2" color="text.secondary">Total Robots Active</Typography>
-              <Typography variant="h3" fontWeight={800}>{summary.totalRobots}</Typography>
+              <Stack direction="row" spacing={2} alignItems="center">
+                <Box sx={{ bgcolor: 'success.main', p: 1, borderRadius: 2, display: 'flex' }}>
+                  <PrecisionManufacturingIcon sx={{ color: 'white' }} />
+                </Box>
+                <Box>
+                  <Typography variant="subtitle2" color="text.secondary">Active Robots</Typography>
+                  <Typography variant="h4" fontWeight={800}>{summary.totalRobots}</Typography>
+                </Box>
+              </Stack>
             </CardContent>
-          
           </Card>
-
-            <button>
-            download Block report
-            </button>
         </Grid>
       </Grid>
 
-      <TableContainer component={Paper} elevation={0} sx={{ border: "1px solid", borderColor: "divider", borderRadius: 2 }}>
+      {/* DATA TABLE */}
+      <TableContainer component={Paper} sx={{ borderRadius: 4, boxShadow: "0 10px 30px rgba(0,0,0,0.03)", border: '1px solid', borderColor: 'divider' }}>
+        <Divider />
         <Table>
-          <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.5) }}>
+          <TableHead sx={{ bgcolor: alpha(theme.palette.action.hover, 0.7) }}>
             <TableRow>
-              <TableCell><strong>Robot Name</strong></TableCell>
-              <TableCell><strong>Location</strong></TableCell>
-              <TableCell align="right"><strong>Panels Cleaned</strong></TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Robot Identifier</TableCell>
+              <TableCell sx={{ fontWeight: 700 }}>Deployment Location</TableCell>
+              <TableCell align="right" sx={{ fontWeight: 700 }}>Panels Cleaned</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {Object.keys(robotData).length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} align="center" sx={{ py: 4 }}>No data available</TableCell>
-              </TableRow>
+            {loading ? (
+              <TableRow><TableCell colSpan={3} align="center" sx={{ py: 8 }}><CircularProgress /></TableCell></TableRow>
+            ) : Object.keys(robotData).length === 0 ? (
+              <TableRow><TableCell colSpan={3} align="center" sx={{ py: 8, color: 'text.disabled' }}>No records found for this period.</TableCell></TableRow>
             ) : (
               Object.entries(robotData).map(([id, robot]) => (
-                <TableRow key={id}>
-                  <TableCell>{robot.deviceName}</TableCell>
-                  <TableCell>{robot.location}</TableCell>
-                  <TableCell align="right">{robot.totalPanelsCleaned.toLocaleString()}</TableCell>
+                <TableRow key={id} hover>
+                  <TableCell sx={{ fontWeight: 500 }}>{robot.deviceName}</TableCell>
+                  <TableCell color="text.secondary">{robot.location}</TableCell>
+                  <TableCell align="right">
+                    <Box component="span" sx={{ bgcolor: alpha(theme.palette.primary.main, 0.1), px: 1.5, py: 0.5, borderRadius: 1, fontWeight: 700, color: 'primary.dark' }}>
+                      {robot.totalPanelsCleaned.toLocaleString()}
+                    </Box>
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </TableContainer>
+
+      {/* Mobile Download Button */}
+      <Button
+          fullWidth
+          variant="contained"
+          startIcon={<DownloadIcon />}
+          onClick={handleDownload}
+          disabled={Object.keys(robotData).length === 0}
+          sx={{ mt: 2, borderRadius: 2, display: { xs: 'flex', sm: 'none' } }}
+        >
+          Download CSV Report
+        </Button>
     </Box>
   );
 }
